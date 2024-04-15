@@ -1,0 +1,9 @@
+.text-field {
+    -fx-border-color: #AAAAAA; /* Gray border */
+    -fx-padding: 10px; /* Padding */
+    -fx-text-fill: #000000; /* Black text color */
+}
+
+.text-field:focused {
+    -fx-border-color: #4CAF50; /* Green border when focused */
+}
