@@ -54,13 +54,19 @@ index configuration.
 By having an Index present in the application we can now search for results in our dataset. Once the user has typed their question, it needs to be converted into an actual   
 query. Lucene provides the <b>Query</b> and <b>QueryParser</b> classes for this exact task. The QueryParser needs to be provided with the field of the document want to base our search on. We also need to provide the analyzer.  
 Then, a Query object created by calling the QueryParser.parse(" ") method with the plain text question as a parameter.  
-  
+
+For the purpose of advanced searching, such as searching by title, author, etc. we can use the <b>MultiFieldQueryParser</b> class. This class allows us to search for results based on multiple fields at once.
+
+
 To search for answers to the query, we need to create a <b>DirectoryReader</b> and an <b>IndexSearcher</b>. We provide the reader with the path where the Directory is stored, then  
 pass the reader to the IndexSearcher. The searcher is now ready it look for results in our dataset. We use the IndexSearcher.search(Query query) method to commit our query.
 This will return a <b>TopDocs</b> object. A TopDocs contains a <b>hits</b> object with the number of hits, and a <b>ScoreDocs</b> array. Each ScoreDoc contains the documents index and its score.  
 We can now iterate through the ScoreDocs array and retrieve the documents and their fields to return the to the user.  
 
-![img_1.png](img_1.png)
+![img_1.png](img_1.png)  
+
+
+
 
 
 
