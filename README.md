@@ -38,7 +38,7 @@ The application uses the <a href = "https://lucene.apache.org/">Apache Lucene li
 functionalities, along with features such as spell checking, hit highlighting, and sophisticated analysis/tokenization capabilities.  
 
 To be make the files searchable by the user, we first need to convert them into a Lucene Documents. Each document consists of one or more fields.  
-In this case, the Document fields are the articles <b>title, abstract, year of publication</b> and <b> full text</b>. To analyze the <b>full text</b> field, Lucene provdes  
+In this case, the Document fields are the articles <b>title, abstract, year of publication</b> and <b> full text</b>. To analyze the <b>full text</b> field, Lucene provides  
 the <b>SimpleAnalyzer</b> which breaks down text into <u>tokens</u>.   
 
 <h3>Files pre-processing</h3>
@@ -52,7 +52,7 @@ index configuration.
   
 <h3>File searching</h3>
 By having an Index present in the application we can now search for results in our dataset. Once the user has typed their question, it needs to be converted into an actual   
-query. Lucene provides the <b>Query</b> and <b>QueryParser</b> classes for this exact task. The QueryParser needs to be provided with the field of the document want to base our search on. We also need to provide the analyzer.  
+query. Lucene provides the <b>Query</b> and <b>QueryParser</b> classes for this exact task. The QueryParser needs to be provided with the field of the document we want to base our search on. We also need to provide the analyzer.  
 Then, a Query object created by calling the QueryParser.parse(" ") method with the plain text question as a parameter.  
 
 For the purpose of advanced searching, such as searching by title, author, etc. we can use the <b>MultiFieldQueryParser</b> class. This class allows us to search for results based on multiple fields at once.
