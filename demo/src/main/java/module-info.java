@@ -8,6 +8,7 @@ module org.example.demo {
     requires org.apache.lucene.queries;
     requires org.apache.lucene.queryparser;
     requires org.apache.lucene.core;
+    requires commons.csv;
 
 
     opens org.example.demo to javafx.fxml;

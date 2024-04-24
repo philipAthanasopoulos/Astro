@@ -77,6 +77,13 @@
             <artifactId>lucene-queryparser</artifactId>
             <version>9.10.0</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/com.opencsv/opencsv -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-csv</artifactId>
+            <version>1.7</version>
+        </dependency>
+
 
 
 
