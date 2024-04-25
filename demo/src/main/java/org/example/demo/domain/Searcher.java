@@ -1,4 +1,4 @@
-package org.example.demo.searcher;
+package org.example.demo.domain;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
@@ -17,14 +17,18 @@ import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
-import org.apache.lucene.store.ByteBuffersDirectory;
 import org.apache.lucene.store.Directory;
+import org.apache.lucene.store.FSDirectory;
 import org.example.demo.luceneDemo.Demo;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.net.URISyntaxException;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -32,38 +36,30 @@ import java.io.Reader;
  */
 public class Searcher {
 
-    private final int MAX_NUM_OF_RESULTS = 10;
+    private final int MAX_NUM_OF_RESULTS = 20;
     private final String PAPERS_FOLDER_LOCATION = "/archive/papers.csv";
-    private Directory directory;
-    private DirectoryReader directoryReader;
-    private Analyzer analyzer;
+    private final String INDEX_DIRECTORY_PATH = "/directory";
+    private final Directory directory;
+    private final DirectoryReader directoryReader;
+    private final Analyzer analyzer;
     private IndexWriter indexWriter;
-    private IndexSearcher indexSearcher;
+    private final IndexSearcher indexSearcher;
 
-    public Searcher() throws IOException {
+    public Searcher() throws IOException, URISyntaxException {
         this.analyzer = new StandardAnalyzer();
-        this.directory = new ByteBuffersDirectory();
-        this.indexWriter = new IndexWriter(this.directory, new IndexWriterConfig(this.analyzer));
-        loadFilesToIndex(indexWriter);
-        indexWriter.close();
+//        this.directory = new ByteBuffersDirectory();
+        this.directory = FSDirectory.open(Paths.get(INDEX_DIRECTORY_PATH));
+        if (!DirectoryReader.indexExists(this.directory)) {
+            this.indexWriter = new IndexWriter(this.directory, new IndexWriterConfig(this.analyzer));
+            loadFilesToIndex(indexWriter);
+            indexWriter.close();
+        }
         this.directoryReader = DirectoryReader.open(this.directory);
         this.indexSearcher = new IndexSearcher(this.directoryReader);
 
         System.out.println("Successfully initialized Searcher!");
     }
 
-    public static void main(String[] args) throws IOException, ParseException {
-        Searcher searcher = new Searcher();
-        TopDocs results = searcher.searchForResults("title", "AI");
-        if (results.totalHits.value == 0) {
-            System.out.println("NO results found!");
-        }
-        for (ScoreDoc scoreDoc : results.scoreDocs) {
-            Document document = searcher.indexSearcher.storedFields().document(scoreDoc.doc);
-            System.out.println(document.get("abstract"));
-            System.out.println(scoreDoc.toString());
-        }
-    }
 
     private void loadFilesToIndex(IndexWriter writer) throws IOException {
         // Load files to index
@@ -91,9 +87,31 @@ public class Searcher {
 
     }
 
-    public TopDocs searchForResults(String field, String text) throws ParseException, IOException {
+    private TopDocs searchForResults(String field, String text) throws ParseException, IOException {
         QueryParser queryParser = new QueryParser(field, this.analyzer);
         Query query = queryParser.parse(text);
         return indexSearcher.search(query, MAX_NUM_OF_RESULTS);
+    }
+
+    private Document getDocumentFromDB(ScoreDoc scoreDoc) throws IOException {
+        return this.indexSearcher.storedFields().document(scoreDoc.doc);
+    }
+
+    private List<Document> getDocumentsFromDB(TopDocs topDocs) throws IOException {
+        List<Document> documents = new ArrayList<>();
+        for (ScoreDoc scoreDoc : topDocs.scoreDocs) {
+            documents.add(getDocumentFromDB(scoreDoc));
+        }
+        return documents;
+    }
+
+    public List<SearchResult> getSearchResults(String field, String plain_text_query) throws ParseException, IOException {
+        List<SearchResult> searchResults = new ArrayList<>();
+        int resultCounter = 0;
+        for (Document document : getDocumentsFromDB(searchForResults(field, plain_text_query))) {
+            searchResults.add(new SearchResult(document, resultCounter));
+            resultCounter++;
+        }
+        return searchResults;
     }
 }

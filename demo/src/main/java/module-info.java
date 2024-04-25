@@ -9,6 +9,7 @@ module org.example.demo {
     requires org.apache.lucene.queryparser;
     requires org.apache.lucene.core;
     requires commons.csv;
+    requires static lombok;
 
 
     opens org.example.demo to javafx.fxml;
