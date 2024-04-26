@@ -1,0 +1,9 @@
+
+#searchResultsVBox {
+    -fx-background-color: transparent;
+    -fx-spacing: 5;
+}
+
+#searchResultsScrollPane {
+    -fx-background-color: transparent;
+}

@@ -1,9 +1,7 @@
 package org.example.demo;
 
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.VBox;
@@ -20,6 +18,12 @@ import java.util.List;
 public class ApplicationController {
 
     @FXML
+    public ScrollPane searchResultsScrollPane;
+    @FXML
+    public MenuButton fieldMenuButton;
+    @FXML
+    public ChoiceBox fieldChoiceBox;
+    @FXML
     private TextField searchTextField;
 
     @FXML
@@ -29,6 +33,7 @@ public class ApplicationController {
 
     @FXML
     private VBox searchResultsVBox;
+
 
     public ApplicationController() {
         try {
@@ -43,6 +48,17 @@ public class ApplicationController {
     }
 
     @FXML
+    public void initialize() {
+        addMenuFieldItems();
+    }
+
+    @FXML
+    private void addMenuFieldItems() {
+//        fieldMenuButton.getItems().addAll(new MenuItem("title"), new MenuItem("year"), new MenuItem("content"), new MenuItem("abstract"));
+        fieldChoiceBox.getItems().addAll("title", "year", "full_text", "abstract");
+    }
+
+    @FXML
     protected void handleEnterPressed(KeyEvent keyEvent) throws ParseException, IOException {
         if (keyEvent.getCode() == KeyCode.ENTER) search();
     }
@@ -50,7 +66,9 @@ public class ApplicationController {
     @FXML
     protected void search() throws ParseException, IOException {
         String plain_text_query = searchTextField.getText();
-        List<SearchResult> results = searcher.getSearchResults("full_text", searchTextField.getText());
+        String searchField =  (String) fieldChoiceBox.getValue();
+        System.out.println(searchField);
+        List<SearchResult> results = searcher.getSearchResults(searchField, searchTextField.getText());
         renderSearchResults(results);
     }
 
