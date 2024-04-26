@@ -33,16 +33,4 @@ public class SearchResult {
     public String getSummary() {
         return document.get("full_text").substring(0, 100);
     }
-
-    @Override
-    public String toString() {
-        return "SearchResult{" +
-                "number=" + number +
-                ", year='" + getYear() + '\'' +
-                ", title='" + getTitle() + '\'' +
-                ", abstract='" + getAbstract() + '\'' +
-                ", full_text='" + getFullText() + '\'' +
-                '}';
-    }
-
 }

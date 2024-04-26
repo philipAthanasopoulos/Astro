@@ -1,0 +1,17 @@
+
+
+.text-area {
+    -fx-font-size: 14px;
+    -fx-text-fill: #000000;
+}
+
+.title-label {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #000000;
+}
+
+.year-label{
+    -fx-font-size: 14px;
+    -fx-text-fill: #41aa1b;
+}

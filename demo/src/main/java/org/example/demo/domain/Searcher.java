@@ -36,14 +36,14 @@ import java.util.List;
  */
 public class Searcher {
 
-    private final int MAX_NUM_OF_RESULTS = 20;
+    private final int MAX_NUM_OF_RESULTS = 10;
     private final String PAPERS_FOLDER_LOCATION = "/archive/papers.csv";
     private final String INDEX_DIRECTORY_PATH = "/directory";
     private final Directory directory;
     private final DirectoryReader directoryReader;
     private final Analyzer analyzer;
-    private IndexWriter indexWriter;
     private final IndexSearcher indexSearcher;
+    private IndexWriter indexWriter;
 
     public Searcher() throws IOException, URISyntaxException {
         this.analyzer = new StandardAnalyzer();
@@ -73,6 +73,7 @@ public class Searcher {
         for (CSVRecord csvRecord : csvParser) {
 
             Document doc = new Document();
+            doc.add(new Field("source_id", csvRecord.get(0), TextField.TYPE_STORED));
             doc.add(new Field("year", csvRecord.get(1), TextField.TYPE_STORED));
             doc.add(new Field("title", csvRecord.get(2), TextField.TYPE_STORED));
             doc.add(new Field("abstract", csvRecord.get(3), TextField.TYPE_STORED));
@@ -90,7 +91,7 @@ public class Searcher {
     private TopDocs searchForResults(String field, String text) throws ParseException, IOException {
         QueryParser queryParser = new QueryParser(field, this.analyzer);
         Query query = queryParser.parse(text);
-        return indexSearcher.search(query, MAX_NUM_OF_RESULTS);
+        return indexSearcher.search(query, directoryReader.numDocs());
     }
 
     private Document getDocumentFromDB(ScoreDoc scoreDoc) throws IOException {
