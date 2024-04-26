@@ -65,7 +65,6 @@ public class ApplicationController {
 
     @FXML
     protected void search() throws ParseException, IOException {
-        String plain_text_query = searchTextField.getText();
         String searchField =  (String) fieldChoiceBox.getValue();
         System.out.println(searchField);
         List<SearchResult> results = searcher.getSearchResults(searchField, searchTextField.getText());
