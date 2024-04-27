@@ -2,6 +2,8 @@ package org.example.demo.domain;
 
 import org.apache.lucene.document.Document;
 
+import java.util.ArrayList;
+
 /**
  * @author Philip Athanasopoulos
  */
@@ -28,6 +30,23 @@ public class SearchResult {
 
     public String getFullText() {
         return this.document.get("full_text");
+    }
+
+    public ArrayList<String> getAuthors() {
+        String[] firstNames = this.document.get("authors_first_names").split(",");
+        String[] lastNames = this.document.get("authors_last_names").split(",");
+        String[] institutions = this.document.get("authors_institutions").split(",");
+
+        ArrayList<String> authors = new ArrayList<>();
+        for (int i = 0; i < firstNames.length; i++) {
+            authors.add(
+                    (firstNames[i].trim() + " " + lastNames[i].trim() + "," + institutions[i].trim())
+                            .replaceAll(",nan", "")
+            );
+        }
+        System.out.println(authors);
+
+        return authors;
     }
 
     public String getSummary() {

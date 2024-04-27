@@ -2,6 +2,7 @@ package org.example.demo;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
@@ -121,6 +122,10 @@ public class ApplicationController {
         Label yearLabel = new Label(result.getYear());
         yearLabel.getStyleClass().add("year-label");
 
+        Label authorsLabel = new Label();
+        result.getAuthors().forEach(author -> authorsLabel.setText(authorsLabel.getText() + author + "\n"));
+        authorsLabel.getStyleClass().add("authors-label");
+
         TextArea textArea = new TextArea(result.getFullText());
         textArea.setEditable(false);
         textArea.setWrapText(true);
@@ -129,6 +134,7 @@ public class ApplicationController {
         VBox vBox = new VBox();
         vBox.getChildren().add(titleLabel);
         vBox.getChildren().add(yearLabel);
+        vBox.getChildren().add(authorsLabel);
         vBox.getChildren().add(textArea);
         vBox.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/css/result_tab.css")).toExternalForm());
 

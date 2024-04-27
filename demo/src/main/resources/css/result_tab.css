@@ -1,17 +1,29 @@
 
-
-.text-area {
-    -fx-font-size: 14px;
-    -fx-text-fill: #000000;
-}
-
 .title-label {
-    -fx-font-size: 16px;
+    -fx-font-size: 25px;
     -fx-font-weight: bold;
     -fx-text-fill: #000000;
+    -fx-padding: 0px 10px 0px 40px;
+
 }
 
-.year-label{
-    -fx-font-size: 14px;
+.year-label {
+    -fx-font-size: 16px;
     -fx-text-fill: #41aa1b;
+    -fx-padding: 40px;
+    -fx-font-weight: bold;
 }
+
+.authors-label {
+    -fx-font-size: 16px;
+    -fx-text-fill: #000000;
+    -fx-padding: 10px 10px 0px 40px;
+    -fx-font-weight: bold;
+}
+
+.text-area {
+    -fx-font-size: 18px;
+    -fx-text-fill: #000000;
+    -fx-padding: 10px 0px 0px 40px;
+}
+

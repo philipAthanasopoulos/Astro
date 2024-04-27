@@ -37,7 +37,7 @@ import java.util.List;
 public class Searcher {
 
     private final int MAX_NUM_OF_RESULTS = 10;
-    private final String PAPERS_FOLDER_LOCATION = "/archive/papers.csv";
+    private final String PAPERS_FOLDER_LOCATION = "/archive/data.csv";
     private final String INDEX_DIRECTORY_PATH = "/directory";
     private final Directory directory;
     private final DirectoryReader directoryReader;
@@ -78,6 +78,10 @@ public class Searcher {
             doc.add(new Field("title", csvRecord.get(2), TextField.TYPE_STORED));
             doc.add(new Field("abstract", csvRecord.get(3), TextField.TYPE_STORED));
             doc.add(new Field("full_text", csvRecord.get(4), TextField.TYPE_STORED));
+
+            doc.add(new Field("authors_first_names", csvRecord.get(5), TextField.TYPE_STORED));
+            doc.add(new Field("authors_last_names", csvRecord.get(6), TextField.TYPE_STORED));
+            doc.add(new Field("authors_institutions", csvRecord.get(7), TextField.TYPE_STORED));
 
             writer.addDocument(doc);
             likeCounter++;
