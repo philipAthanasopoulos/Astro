@@ -3,6 +3,7 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ChoiceBox?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
@@ -11,7 +12,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<TabPane fx:id="tabPane" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.demo.ApplicationController">
+<TabPane fx:id="tabPane" stylesheets="@../../../css/tabPane.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.demo.ApplicationController">
    <tabs>
       <Tab text="Search">
          <content>
@@ -32,7 +33,10 @@
                   <ChoiceBox fx:id="fieldChoiceBox" layoutX="491.0" layoutY="59.0" prefWidth="150.0" />
                   <Button fx:id="nextTabButton" layoutX="650.0" layoutY="900.0" mnemonicParsing="false" onAction="#loadNextResultsPage" text="Next" />
                   <Button fx:id="previousTabButton" layoutX="545.0" layoutY="900.0" mnemonicParsing="false" onAction="#loadPreviousResultsPage" text="Previous" />
-                  <Label  fx:id="pageIndex" layoutX="613.0" layoutY="904.0" text="Label" />
+                  <Label fx:id="pageIndex" layoutX="613.0" layoutY="904.0" text="Label" />
+                  <ChoiceBox fx:id="sortByChoiceBox" layoutX="691.0" layoutY="59.0" prefHeight="25.0" prefWidth="82.0" />
+                  <ListView fx:id="historyList" layoutX="820.0" layoutY="85.0" prefHeight="189.0" prefWidth="180.0" />
+                  <Button fx:id="historyButton" layoutX="820.0" layoutY="60.0" mnemonicParsing="false" onAction="#handleHistoryButtonPress" text="History" />
                 </children>
             </Pane>
          </content>

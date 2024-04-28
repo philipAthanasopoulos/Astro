@@ -1,0 +1,25 @@
+.tab-pane .tab-header-area .tab {
+    -fx-background-color: #e8e8e8; /* Light grey background */
+    -fx-text-fill: #000000; /* Black text */
+    -fx-border-color: #c6c6c6; /* Grey border */
+    -fx-border-width: 1px; /* Border width */
+    -fx-border-radius: 5px 5px 0 0; /* Rounded top corners */
+    -fx-padding: 10px 30px; /* Padding around text */
+}
+
+.tab-pane .tab-header-area .tab:selected {
+    -fx-background-color: #ffffff; /* White background for selected tab */
+    -fx-text-fill: #000000; /* Black text for selected tab */
+    -fx-border-color: #c6c6c6; /* Grey border for selected tab */
+    -fx-border-width: 1px; /* Border width for selected tab */
+    -fx-border-radius: 5px 5px 0 0; /* Rounded top corners for selected tab */
+    -fx-padding: 10px 30px; /* Padding around text for selected tab */
+}
+
+.tab-pane .tab-header-area {
+    -fx-background-color: #e8e8e8; /* Light grey background for tab header area */
+}
+
+.tab-pane .tab-content-area {
+    -fx-background-color: #ffffff; /* White background for tab content area */
+}

@@ -49,27 +49,30 @@ public class Searcher {
         this.analyzer = new StandardAnalyzer();
 //        this.directory = new ByteBuffersDirectory();
         this.directory = FSDirectory.open(Paths.get(INDEX_DIRECTORY_PATH));
-        if (!DirectoryReader.indexExists(this.directory)) {
-            this.indexWriter = new IndexWriter(this.directory, new IndexWriterConfig(this.analyzer));
-            loadFilesToIndex(indexWriter);
-            indexWriter.close();
-        }
+        createDirectoryIfNotExist();
         this.directoryReader = DirectoryReader.open(this.directory);
         this.indexSearcher = new IndexSearcher(this.directoryReader);
 
         System.out.println("Successfully initialized Searcher!");
     }
 
+    private void createDirectoryIfNotExist() throws IOException {
+        if (!DirectoryReader.indexExists(this.directory)) {
+            this.indexWriter = new IndexWriter(this.directory, new IndexWriterConfig(this.analyzer));
+            loadFilesToIndex(indexWriter);
+            indexWriter.close();
+        }
+    }
+
 
     private void loadFilesToIndex(IndexWriter writer) throws IOException {
-        // Load files to index
         InputStream inputStream = Demo.class.getResourceAsStream(PAPERS_FOLDER_LOCATION);
 
+        assert inputStream != null;
         Reader reader = new InputStreamReader(inputStream);
         CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT);
 
-        int likeCounter = 0;
-
+        int lineCounter = 0;
         for (CSVRecord csvRecord : csvParser) {
 
             Document doc = new Document();
@@ -84,11 +87,11 @@ public class Searcher {
             doc.add(new Field("authors_institutions", csvRecord.get(7), TextField.TYPE_STORED));
 
             writer.addDocument(doc);
-            likeCounter++;
+            lineCounter++;
         }
 
         System.out.println("Files loaded to index.");
-        System.out.println("Loaded " + likeCounter + " files");
+        System.out.println("Loaded " + lineCounter + " files");
 
     }
 
@@ -104,9 +107,7 @@ public class Searcher {
 
     private List<Document> getDocumentsFromDB(TopDocs topDocs) throws IOException {
         List<Document> documents = new ArrayList<>();
-        for (ScoreDoc scoreDoc : topDocs.scoreDocs) {
-            documents.add(getDocumentFromDB(scoreDoc));
-        }
+        for (ScoreDoc scoreDoc : topDocs.scoreDocs) documents.add(getDocumentFromDB(scoreDoc));
         return documents;
     }
 

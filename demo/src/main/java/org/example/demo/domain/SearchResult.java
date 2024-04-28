@@ -38,11 +38,8 @@ public class SearchResult {
         String[] institutions = this.document.get("authors_institutions").split(",");
 
         ArrayList<String> authors = new ArrayList<>();
-        for (int i = 0; i < firstNames.length; i++) {
-            authors.add(
-                    (firstNames[i].trim() + " " + lastNames[i].trim() + "," + institutions[i].trim())
-                            .replaceAll(",nan", "")
-            );
+        for (int i = 0; i < firstNames.length-1; i++) {
+            authors.add(firstNames[i] + " " + lastNames[i] + "," + institutions[i]);
         }
         System.out.println(authors);
 

@@ -1,8 +1,6 @@
 package org.example.demo;
 
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
@@ -14,11 +12,13 @@ import org.example.demo.domain.Searcher;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
 public class ApplicationController {
 
+    private final ArrayList<String> searchHistory = new ArrayList<>();
     @FXML
     public ScrollPane searchResultsScrollPane;
     @FXML
@@ -31,17 +31,19 @@ public class ApplicationController {
     public Button previousTabButton;
     @FXML
     public Label pageIndex;
+    @FXML
+    public ListView<String> historyList;
+    @FXML
+    public Button historyButton;
+    @FXML
+    public ChoiceBox<String> sortByChoiceBox;
     private ArrayList<SearchResult> searchResults = new ArrayList<>();
     @FXML
     private TextField searchTextField;
-
-    private Searcher searcher;
-    private int resultsPageIndex = 1;
-
     @FXML
     private VBox searchResultsVBox;
-
-    private ArrayList<String> searchHistory = new ArrayList<>();
+    private Searcher searcher;
+    private int resultsPageIndex = 1;
 
 
     public ApplicationController() {
@@ -59,21 +61,25 @@ public class ApplicationController {
     @FXML
     public void initialize() {
         addMenuFieldItems();
-
+        historyList.setVisible(false);
     }
 
     @FXML
     private void addMenuFieldItems() {
         fieldChoiceBox.getItems().addAll("title", "year", "full_text", "abstract");
+        sortByChoiceBox.getItems().addAll("newest first", "oldest first", "relevance");
+        sortByChoiceBox.setValue("relevance");
         fieldChoiceBox.setValue("title");
     }
-
 
     @FXML
     protected void search() throws ParseException, IOException {
         String searchField = fieldChoiceBox.getValue();
         System.out.println(searchField);
         List<SearchResult> results = searcher.getSearchResults(searchField, searchTextField.getText());
+        String sortBy = sortByChoiceBox.getValue();
+        if (sortBy.equals("newest first")) results.sort(Comparator.comparing(SearchResult::getYear).reversed());
+        else if (sortBy.equals("oldest first")) results.sort(Comparator.comparing(SearchResult::getYear));
         searchResults.clear();
         searchResults.addAll(results);
         renderSearchResults();
@@ -81,13 +87,9 @@ public class ApplicationController {
     }
 
     private void renderSearchResults() {
-
         searchResultsVBox.getChildren().clear();
-
         List<SearchResult> selectedResults = searchResults.subList(10 * (resultsPageIndex - 1), Math.min(searchResults.size(), 10 * resultsPageIndex));
-
         for (SearchResult result : selectedResults) addResultToPage(result);
-
         pageIndex.setText(String.valueOf(resultsPageIndex));
     }
 
@@ -119,39 +121,51 @@ public class ApplicationController {
         Label titleLabel = new Label(result.getTitle());
         titleLabel.getStyleClass().add("title-label");
 
-        Label yearLabel = new Label(result.getYear());
+        Label yearLabel = new Label("Published: " + result.getYear());
         yearLabel.getStyleClass().add("year-label");
 
-        Label authorsLabel = new Label();
-        result.getAuthors().forEach(author -> authorsLabel.setText(authorsLabel.getText() + author + "\n"));
+        Label authorsLabel = new Label("Authors: \n");
         authorsLabel.getStyleClass().add("authors-label");
+        for (String author : result.getAuthors()) authorsLabel.setText(authorsLabel.getText() + author + "\n");
 
-        TextArea textArea = new TextArea(result.getFullText());
-        textArea.setEditable(false);
-        textArea.setWrapText(true);
-        textArea.setPrefSize(1900, 900);
+        Label textLabel = new Label("Text:");
+        textLabel.getStyleClass().add("text-label");
+        textLabel.setText(result.getFullText());
 
         VBox vBox = new VBox();
+        vBox.getStyleClass().add("results-vbox");
         vBox.getChildren().add(titleLabel);
         vBox.getChildren().add(yearLabel);
         vBox.getChildren().add(authorsLabel);
-        vBox.getChildren().add(textArea);
-        vBox.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/css/result_tab.css")).toExternalForm());
+        vBox.getChildren().add(textLabel);
+
+        ScrollPane tabScrollPane = new ScrollPane();
+        tabScrollPane.getStyleClass().add("tab-scroll-pane");
+        tabScrollPane.setContent(vBox);
+        tabScrollPane.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/css/result_tab.css")).toExternalForm());
 
         Tab tab = new Tab(result.getTitle());
-        tab.setContent(vBox);
+        tab.setContent(tabScrollPane);
         tabPane.getTabs().add(tab);
         tabPane.getSelectionModel().select(tab);
     }
 
-
-    public void loadNextResultsPage(ActionEvent actionEvent) {
+    public void loadNextResultsPage() {
         if (resultsPageIndex < searchResults.size()) resultsPageIndex++;
         renderSearchResults();
     }
 
-    public void loadPreviousResultsPage(ActionEvent actionEvent) {
+    public void loadPreviousResultsPage() {
         if (resultsPageIndex > 1) resultsPageIndex--;
         renderSearchResults();
+    }
+
+    public void handleHistoryButtonPress() {
+        if (historyList.isVisible()) historyList.setVisible(false);
+        else {
+            historyList.setVisible(true);
+            historyList.getItems().clear();
+            historyList.getItems().addAll(searchHistory);
+        }
     }
 }
