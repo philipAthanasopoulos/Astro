@@ -37,13 +37,15 @@ public class ApplicationController {
     public Button historyButton;
     @FXML
     public ChoiceBox<String> sortByChoiceBox;
-    private ArrayList<SearchResult> searchResults = new ArrayList<>();
+    @FXML
+    public ListView<String> suggestionsList;
     @FXML
     private TextField searchTextField;
     @FXML
     private VBox searchResultsVBox;
     private Searcher searcher;
     private int resultsPageIndex = 1;
+    private ArrayList<SearchResult> searchResults = new ArrayList<>();
 
 
     public ApplicationController() {
@@ -62,6 +64,18 @@ public class ApplicationController {
     public void initialize() {
         addMenuFieldItems();
         historyList.setVisible(false);
+        suggestionsList.setVisible(false);
+
+
+        searchTextField.setOnKeyTyped(event -> {
+            try {
+                suggestionsList.getItems().clear();
+                suggestionsList.getItems().addAll(searcher.getSuggestions(searchTextField.getText()));
+                suggestionsList.setVisible(!suggestionsList.getItems().isEmpty());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     @FXML

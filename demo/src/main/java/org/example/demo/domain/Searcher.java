@@ -17,8 +17,12 @@ import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
+import org.apache.lucene.search.suggest.InputIterator;
+import org.apache.lucene.search.suggest.Lookup;
+import org.apache.lucene.search.suggest.analyzing.AnalyzingInfixSuggester;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
+import org.apache.lucene.util.BytesRef;
 import org.example.demo.luceneDemo.Demo;
 
 import java.io.IOException;
@@ -28,7 +32,10 @@ import java.io.Reader;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 
 /**
@@ -44,14 +51,25 @@ public class Searcher {
     private final Analyzer analyzer;
     private final IndexSearcher indexSearcher;
     private IndexWriter indexWriter;
+    private AnalyzingInfixSuggester suggester;
+
 
     public Searcher() throws IOException, URISyntaxException {
         this.analyzer = new StandardAnalyzer();
 //        this.directory = new ByteBuffersDirectory();
         this.directory = FSDirectory.open(Paths.get(INDEX_DIRECTORY_PATH));
+        this.suggester = new AnalyzingInfixSuggester(this.directory, this.analyzer);
         createDirectoryIfNotExist();
         this.directoryReader = DirectoryReader.open(this.directory);
         this.indexSearcher = new IndexSearcher(this.directoryReader);
+
+        InputStream inputStream = Demo.class.getResourceAsStream(PAPERS_FOLDER_LOCATION);
+
+        assert inputStream != null;
+        Reader reader = new InputStreamReader(inputStream);
+        CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT);
+        CSVInputIterator csvInputIterator = new CSVInputIterator(csvParser.iterator());
+        this.suggester.build(csvInputIterator);
 
         System.out.println("Successfully initialized Searcher!");
     }
@@ -111,6 +129,7 @@ public class Searcher {
         return documents;
     }
 
+
     public List<SearchResult> getSearchResults(String field, String plain_text_query) throws ParseException, IOException {
         List<SearchResult> searchResults = new ArrayList<>();
         int resultCounter = 0;
@@ -119,5 +138,24 @@ public class Searcher {
             resultCounter++;
         }
         return searchResults;
+    }
+
+    public List<String> getSuggestions(String query) throws IOException {
+        List<String> suggestions = new ArrayList<>();
+        for (Lookup.LookupResult lookupResult : suggester.lookup(query, false, 7)) {
+            suggestions.add(lookupResult.key.toString());
+        }
+        return suggestions;
+    }
+
+    public static void main(String[] args) {
+        try {
+            Searcher searcher = new Searcher();
+            searcher.getSearchResults("title", "machine learning");
+            System.out.println(searcher.getSuggestions("ai"));
+        } catch (IOException | URISyntaxException | ParseException e) {
+            e.printStackTrace();
+        }
+
     }
 }

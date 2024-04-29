@@ -37,6 +37,7 @@
                   <ChoiceBox fx:id="sortByChoiceBox" layoutX="691.0" layoutY="59.0" prefHeight="25.0" prefWidth="82.0" />
                   <ListView fx:id="historyList" layoutX="820.0" layoutY="85.0" prefHeight="189.0" prefWidth="180.0" />
                   <Button fx:id="historyButton" layoutX="820.0" layoutY="60.0" mnemonicParsing="false" onAction="#handleHistoryButtonPress" text="History" />
+                  <ListView fx:id="suggestionsList" layoutX="49.0" layoutY="91.0" prefHeight="228.0" prefWidth="306.0" />
                 </children>
             </Pane>
          </content>

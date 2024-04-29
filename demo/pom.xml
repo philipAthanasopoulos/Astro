@@ -15,6 +15,15 @@
     </properties>
 
     <dependencies>
+        <!-- Other dependencies -->
+
+        <!-- https://mvnrepository.com/artifact/org.apache.lucene/lucene-suggest -->
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-suggest</artifactId>
+            <version>9.10.0</version>
+        </dependency>
+
         <dependency>
             <groupId>org.scilab.forge</groupId>
             <artifactId>jlatexmath</artifactId>
