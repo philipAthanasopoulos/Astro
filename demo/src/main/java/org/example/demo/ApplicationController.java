@@ -88,7 +88,7 @@ public class ApplicationController {
 
     @FXML
     private void addMenuFieldItems() {
-        fieldChoiceBox.getItems().addAll("title", "year", "full_text", "abstract");
+        fieldChoiceBox.getItems().addAll("title", "year", "full_text", "abstract", "authors_full_names");
         sortByChoiceBox.getItems().addAll("newest first", "oldest first", "relevance");
         sortByChoiceBox.setValue("relevance");
         fieldChoiceBox.setValue("title");

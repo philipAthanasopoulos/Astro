@@ -44,7 +44,7 @@ public class Searcher {
     //or we should fix the search engine...
     public static final int MAX_NUMBER_OF_SEARCH_RESULTS = 100;
     private final String PAPERS_FOLDER_LOCATION = "/archive/data.csv";
-    private final String INDEX_DIRECTORY_PATH = "/directory";
+    private final String INDEX_DIRECTORY_PATH = "./demo/src/main/resources/directory/";
     private final Directory directory;
     private final DirectoryReader directoryReader;
     private final Analyzer analyzer;
