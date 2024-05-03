@@ -2,10 +2,12 @@ package org.example.demo;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import org.apache.lucene.queryparser.classic.ParseException;
+import org.apache.lucene.search.highlight.InvalidTokenOffsetsException;
 import org.example.demo.domain.SearchResult;
 import org.example.demo.domain.Searcher;
 
@@ -40,6 +42,10 @@ public class ApplicationController {
     @FXML
     public ListView<String> suggestionsList;
     @FXML
+    public ImageView logo;
+    @FXML
+    public Button searchButton;
+    @FXML
     private TextField searchTextField;
     @FXML
     private VBox searchResultsVBox;
@@ -66,6 +72,8 @@ public class ApplicationController {
         historyList.setVisible(false);
         suggestionsList.setVisible(false);
 
+        ImageView searchIcon = new ImageView(getClass().getResource("/images/search.png").toExternalForm());
+        searchButton.setGraphic(searchIcon);
 
         searchTextField.setOnKeyTyped(event -> {
             try {
@@ -87,7 +95,7 @@ public class ApplicationController {
     }
 
     @FXML
-    protected void search() throws ParseException, IOException {
+    protected void search() throws ParseException, IOException, InvalidTokenOffsetsException {
         String searchField = fieldChoiceBox.getValue();
         System.out.println(searchField);
         List<SearchResult> results = searcher.getSearchResults(searchField, searchTextField.getText());
@@ -118,16 +126,41 @@ public class ApplicationController {
         Label yearLabel = new Label(result.getYear());
         yearLabel.getStyleClass().add("year-label");
 
+        Label authorsLabel = new Label();
+        List<String> authors = result.getAuthors();
+        if (!authors.isEmpty()) {
+            authorsLabel.setText("By: ");
+            authorsLabel.setText(authorsLabel.getText() + authors.get(0));
+            if(authors.size() > 1) authorsLabel.setText(authorsLabel.getText() + " and " + (authors.size() - 1) + " more");
+        }
+
         TextFlow textFlow = new TextFlow();
         textFlow.setPrefWidth(500);
+        addFragmentsToTextFlow(result, textFlow);
 
-        Text text = new Text(result.getAbstract());
-        text.setStyle("-fx-font-size: 15px;");
-        textFlow.getChildren().add(text);
+        textFlow.getChildren().add(new Text("\n \n \n \n \n \n "));
 
         searchResultsVBox.getChildren().add(titleLabel);
         searchResultsVBox.getChildren().add(yearLabel);
+        searchResultsVBox.getChildren().add(authorsLabel);
         searchResultsVBox.getChildren().add(textFlow);
+    }
+
+    private void addFragmentsToTextFlow(SearchResult result, TextFlow textFlow) {
+        for (String fragment : result.getBestFragments()) {
+            String[] words = fragment.split(" ");
+            for (String word : words) {
+                if (word.contains("<B>")) {
+                    Text boldText = new Text(word.replace("<B>", " ").replace("</B>", " "));
+                    boldText.getStyleClass().add("bold-text");
+                    textFlow.getChildren().add(boldText);
+                } else {
+                    Text normalText = new Text(word + " ");
+                    normalText.getStyleClass().add("normal-text");
+                    textFlow.getChildren().add(normalText);
+                }
+            }
+        }
     }
 
     private void openResultInNewTab(SearchResult result) {
@@ -135,23 +168,21 @@ public class ApplicationController {
         Label titleLabel = new Label(result.getTitle());
         titleLabel.getStyleClass().add("title-label");
 
+
         Label yearLabel = new Label("Published: " + result.getYear());
         yearLabel.getStyleClass().add("year-label");
 
         Label authorsLabel = new Label("Authors: \n");
         authorsLabel.getStyleClass().add("authors-label");
         for (String author : result.getAuthors()) authorsLabel.setText(authorsLabel.getText() + author + "\n");
+        System.out.println(result.getAuthors());
 
         Label textLabel = new Label("Text:");
         textLabel.getStyleClass().add("text-label");
         textLabel.setText(result.getFullText());
 
-        VBox vBox = new VBox();
+        VBox vBox = new VBox(titleLabel, yearLabel, authorsLabel, textLabel);
         vBox.getStyleClass().add("results-vbox");
-        vBox.getChildren().add(titleLabel);
-        vBox.getChildren().add(yearLabel);
-        vBox.getChildren().add(authorsLabel);
-        vBox.getChildren().add(textLabel);
 
         ScrollPane tabScrollPane = new ScrollPane();
         tabScrollPane.getStyleClass().add("tab-scroll-pane");

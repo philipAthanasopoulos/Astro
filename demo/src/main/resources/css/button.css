@@ -6,7 +6,7 @@
     -fx-text-decoration: none; /* No underline */
     -fx-display: inline-block;
     -fx-cursor: pointer; /* Cursor on hover */
-    -fx-border-radius: 4px; /* Rounded corners */
+    -fx-border-radius: 20px; /* Rounded corners */
     -fx-font-weight: bold;
 }
 

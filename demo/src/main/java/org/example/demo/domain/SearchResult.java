@@ -9,11 +9,11 @@ import java.util.ArrayList;
  */
 public class SearchResult {
     private final Document document;
-    private int number;
+    private String[] bestFragments;
 
-    public SearchResult(Document document, int number) {
+    public SearchResult(Document document, String[] fragment) {
         this.document = document;
-        this.number = number;
+        this.bestFragments = fragment;
     }
 
     public String getTitle() {
@@ -32,17 +32,22 @@ public class SearchResult {
         return this.document.get("full_text");
     }
 
+    public String getBestFragment() {
+        return this.bestFragments[0];
+    }
+
+    public String[] getBestFragments() {
+        return this.bestFragments;
+    }
+
     public ArrayList<String> getAuthors() {
-        String[] firstNames = this.document.get("authors_first_names").split(",");
-        String[] lastNames = this.document.get("authors_last_names").split(",");
-        String[] institutions = this.document.get("authors_institutions").split(",");
+        String[] authorFullNames = this.document.getValues("authors_full_names");
+        String[] institutions = this.document.getValues("authors_institutions");
 
         ArrayList<String> authors = new ArrayList<>();
-        for (int i = 0; i < firstNames.length-1; i++) {
-            authors.add(firstNames[i] + " " + lastNames[i] + "," + institutions[i]);
+        for (int i = 0; i < authorFullNames.length; i++) {
+            authors.add(authorFullNames[i] + ", "+  institutions[i]);
         }
-        System.out.println(authors);
-
         return authors;
     }
 

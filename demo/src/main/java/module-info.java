@@ -8,6 +8,7 @@ module org.example.demo {
     requires org.apache.lucene.queryparser;
     requires org.apache.lucene.core;
     requires org.apache.lucene.suggest;
+    requires org.apache.lucene.highlighter;
     requires commons.csv;
     requires static lombok;
 

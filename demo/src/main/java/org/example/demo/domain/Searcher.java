@@ -17,12 +17,11 @@ import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
-import org.apache.lucene.search.suggest.InputIterator;
+import org.apache.lucene.search.highlight.*;
 import org.apache.lucene.search.suggest.Lookup;
 import org.apache.lucene.search.suggest.analyzing.AnalyzingInfixSuggester;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
-import org.apache.lucene.util.BytesRef;
 import org.example.demo.luceneDemo.Demo;
 
 import java.io.IOException;
@@ -32,10 +31,7 @@ import java.io.Reader;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 
 /**
@@ -43,7 +39,10 @@ import java.util.stream.Collectors;
  */
 public class Searcher {
 
-    private final int MAX_NUM_OF_RESULTS = 10;
+    //If the user cannot find what he is looking for in the first 200 results
+    //they should refine their search query
+    //or we should fix the search engine...
+    public static final int MAX_NUMBER_OF_SEARCH_RESULTS = 100;
     private final String PAPERS_FOLDER_LOCATION = "/archive/data.csv";
     private final String INDEX_DIRECTORY_PATH = "/directory";
     private final Directory directory;
@@ -52,27 +51,19 @@ public class Searcher {
     private final IndexSearcher indexSearcher;
     private IndexWriter indexWriter;
     private AnalyzingInfixSuggester suggester;
+    private Highlighter highlighter;
 
 
     public Searcher() throws IOException, URISyntaxException {
         this.analyzer = new StandardAnalyzer();
-//        this.directory = new ByteBuffersDirectory();
         this.directory = FSDirectory.open(Paths.get(INDEX_DIRECTORY_PATH));
-        this.suggester = new AnalyzingInfixSuggester(this.directory, this.analyzer);
         createDirectoryIfNotExist();
         this.directoryReader = DirectoryReader.open(this.directory);
         this.indexSearcher = new IndexSearcher(this.directoryReader);
 
-        InputStream inputStream = Demo.class.getResourceAsStream(PAPERS_FOLDER_LOCATION);
-
-        assert inputStream != null;
-        Reader reader = new InputStreamReader(inputStream);
-        CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT);
-        CSVInputIterator csvInputIterator = new CSVInputIterator(csvParser.iterator());
-        this.suggester.build(csvInputIterator);
-
         System.out.println("Successfully initialized Searcher!");
     }
+
 
     private void createDirectoryIfNotExist() throws IOException {
         if (!DirectoryReader.indexExists(this.directory)) {
@@ -81,7 +72,6 @@ public class Searcher {
             indexWriter.close();
         }
     }
-
 
     private void loadFilesToIndex(IndexWriter writer) throws IOException {
         InputStream inputStream = Demo.class.getResourceAsStream(PAPERS_FOLDER_LOCATION);
@@ -100,9 +90,14 @@ public class Searcher {
             doc.add(new Field("abstract", csvRecord.get(3), TextField.TYPE_STORED));
             doc.add(new Field("full_text", csvRecord.get(4), TextField.TYPE_STORED));
 
-            doc.add(new Field("authors_first_names", csvRecord.get(5), TextField.TYPE_STORED));
-            doc.add(new Field("authors_last_names", csvRecord.get(6), TextField.TYPE_STORED));
-            doc.add(new Field("authors_institutions", csvRecord.get(7), TextField.TYPE_STORED));
+            //Add authors and institutions
+            String[] firstNames = csvRecord.get(5).split(",");
+            String[] lastNames = csvRecord.get(6).split(",");
+            String[] institutions = csvRecord.get(7).split(",");
+            for (int i = 0; i < firstNames.length; i++) {
+                doc.add(new Field("authors_full_names", firstNames[i] + " " + lastNames[i], TextField.TYPE_STORED));
+                doc.add(new Field("authors_institutions", institutions[i], TextField.TYPE_STORED));
+            }
 
             writer.addDocument(doc);
             lineCounter++;
@@ -113,10 +108,14 @@ public class Searcher {
 
     }
 
-    private TopDocs searchForResults(String field, String text) throws ParseException, IOException {
+        private TopDocs searchForResults(String field, String text) throws ParseException, IOException {
         QueryParser queryParser = new QueryParser(field, this.analyzer);
         Query query = queryParser.parse(text);
-        return indexSearcher.search(query, directoryReader.numDocs());
+        QueryScorer queryScorer = new QueryScorer(query, field);
+        Fragmenter fragmenter = new SimpleSpanFragmenter(queryScorer);
+        this.highlighter = new Highlighter(queryScorer);
+        this.highlighter.setTextFragmenter(fragmenter);
+        return indexSearcher.search(query, MAX_NUMBER_OF_SEARCH_RESULTS);
     }
 
     private Document getDocumentFromDB(ScoreDoc scoreDoc) throws IOException {
@@ -129,33 +128,24 @@ public class Searcher {
         return documents;
     }
 
-
-    public List<SearchResult> getSearchResults(String field, String plain_text_query) throws ParseException, IOException {
+    public List<SearchResult> getSearchResults(String field, String plain_text_query) throws ParseException, IOException, InvalidTokenOffsetsException {
         List<SearchResult> searchResults = new ArrayList<>();
-        int resultCounter = 0;
-        for (Document document : getDocumentsFromDB(searchForResults(field, plain_text_query))) {
-            searchResults.add(new SearchResult(document, resultCounter));
-            resultCounter++;
+        TopDocs topDocs = searchForResults(field, plain_text_query);
+        for (ScoreDoc scoreDoc : topDocs.scoreDocs) {
+            Document document = getDocumentFromDB(scoreDoc);
+            String text = document.get(field);
+            String[] fragments = highlighter.getBestFragments(analyzer, field, text, 5);
+            searchResults.add(new SearchResult(document, fragments));
         }
+        System.out.println("Found " + searchResults.size() + " results");
         return searchResults;
     }
 
     public List<String> getSuggestions(String query) throws IOException {
         List<String> suggestions = new ArrayList<>();
-        for (Lookup.LookupResult lookupResult : suggester.lookup(query, false, 7)) {
+        for (Lookup.LookupResult lookupResult : suggester.lookup(query, false, 7))
             suggestions.add(lookupResult.key.toString());
-        }
+        System.out.println("Found " + suggestions.size() + " suggestions");
         return suggestions;
-    }
-
-    public static void main(String[] args) {
-        try {
-            Searcher searcher = new Searcher();
-            searcher.getSearchResults("title", "machine learning");
-            System.out.println(searcher.getSuggestions("ai"));
-        } catch (IOException | URISyntaxException | ParseException e) {
-            e.printStackTrace();
-        }
-
     }
 }
