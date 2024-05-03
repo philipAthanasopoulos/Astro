@@ -105,6 +105,7 @@ public class ApplicationController {
         searchResults.clear();
         searchResults.addAll(results);
         renderSearchResults();
+        resultsPageIndex = 1;
         searchHistory.add(searchTextField.getText());
     }
 
