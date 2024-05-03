@@ -206,6 +206,8 @@ public class ApplicationController {
         renderSearchResults();
     }
 
+    //TODO
+    //Use history to suggest search queries
     public void handleHistoryButtonPress() {
         if (historyList.isVisible()) historyList.setVisible(false);
         else {
