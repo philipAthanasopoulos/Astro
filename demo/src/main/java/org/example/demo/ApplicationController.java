@@ -104,8 +104,8 @@ public class ApplicationController {
         else if (sortBy.equals("oldest first")) results.sort(Comparator.comparing(SearchResult::getYear));
         searchResults.clear();
         searchResults.addAll(results);
-        renderSearchResults();
         resultsPageIndex = 1;
+        renderSearchResults();
         searchHistory.add(searchTextField.getText());
     }
 

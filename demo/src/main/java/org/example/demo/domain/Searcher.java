@@ -108,7 +108,7 @@ public class Searcher {
 
     }
 
-        private TopDocs searchForResults(String field, String text) throws ParseException, IOException {
+    private TopDocs searchForResults(String field, String text) throws ParseException, IOException {
         QueryParser queryParser = new QueryParser(field, this.analyzer);
         Query query = queryParser.parse(text);
         QueryScorer queryScorer = new QueryScorer(query, field);
