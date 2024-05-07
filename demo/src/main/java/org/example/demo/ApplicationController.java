@@ -9,6 +9,7 @@ import javafx.scene.text.TextFlow;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.search.highlight.InvalidTokenOffsetsException;
 import org.example.demo.domain.SearchResult;
+import org.example.demo.domain.SearchSuggester;
 import org.example.demo.domain.Searcher;
 
 import java.io.IOException;
@@ -21,6 +22,7 @@ import java.util.Objects;
 public class ApplicationController {
 
     private final ArrayList<String> searchHistory = new ArrayList<>();
+    private final Searcher searcher;
     @FXML
     public ScrollPane searchResultsScrollPane;
     @FXML
@@ -46,28 +48,23 @@ public class ApplicationController {
     @FXML
     public Button searchButton;
     @FXML
+    public Button trendySuggestionButton;
+    @FXML
     private TextField searchTextField;
     @FXML
     private VBox searchResultsVBox;
-    private Searcher searcher;
     private int resultsPageIndex = 1;
-    private ArrayList<SearchResult> searchResults = new ArrayList<>();
+    private List<SearchResult> searchResults = new ArrayList<>();
+    private SearchSuggester searchSuggester;
 
 
-    public ApplicationController() {
-        try {
-            this.searcher = new Searcher();
-        } catch (IOException e) {
-            System.out.println("Could not initialize the searcher!");
-            e.printStackTrace();
-        } catch (URISyntaxException e) {
-            System.out.println("Could not find the index directory!");
-            e.printStackTrace();
-        }
+    public ApplicationController() throws URISyntaxException, IOException {
+        this.searcher = new Searcher();
     }
 
     @FXML
     public void initialize() {
+        searchSuggester = new SearchSuggester();
         addMenuFieldItems();
         historyList.setVisible(false);
         suggestionsList.setVisible(false);
@@ -93,6 +90,12 @@ public class ApplicationController {
         sortByChoiceBox.setOnAction(event -> sortResults());
     }
 
+    @FXML
+    public void searchTrendyQuery() throws InvalidTokenOffsetsException, ParseException, IOException {
+        searchTextField.setText(searchSuggester.suggestRandomSearch());
+        search();
+    }
+
     private void sortResults() {
         System.out.println("User tried to sort results");
         String sortMethod = sortByChoiceBox.getValue();
@@ -110,17 +113,14 @@ public class ApplicationController {
         fieldChoiceBox.getItems().addAll("title", "year", "full_text", "abstract", "authors_full_names");
         sortByChoiceBox.getItems().addAll("newest first", "oldest first", "relevance");
         sortByChoiceBox.setValue("relevance");
-        fieldChoiceBox.setValue("title");
+        fieldChoiceBox.setValue("full_text");
     }
 
     @FXML
     protected void search() throws ParseException, IOException, InvalidTokenOffsetsException {
         String searchField = fieldChoiceBox.getValue();
         System.out.println(searchField);
-        List<SearchResult> results = searcher.getSearchResults(searchField, searchTextField.getText());
-        String sortBy = sortByChoiceBox.getValue();
-        searchResults.clear();
-        searchResults.addAll(results);
+        searchResults = searcher.getSearchResults(searchField, searchTextField.getText());
         resultsPageIndex = 1;
         renderSearchResults();
         searchHistory.add(searchTextField.getText());

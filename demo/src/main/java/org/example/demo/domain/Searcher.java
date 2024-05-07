@@ -42,14 +42,12 @@ public class Searcher {
     //If the user cannot find what he is looking for in the first 200 results
     //they should refine their search query
     //or we should fix the search engine...
-    public static final int MAX_NUMBER_OF_SEARCH_RESULTS = 100;
+    public static final int MAX_NUMBER_OF_SEARCH_RESULTS = 200;
     private final String PAPERS_FOLDER_LOCATION = "/archive/data.csv";
     private final String INDEX_DIRECTORY_PATH = "./demo/src/main/resources/directory/";
     private final Directory directory;
-    private final DirectoryReader directoryReader;
     private final Analyzer analyzer;
     private final IndexSearcher indexSearcher;
-    private IndexWriter indexWriter;
     private AnalyzingInfixSuggester suggester;
     private Highlighter highlighter;
 
@@ -58,8 +56,8 @@ public class Searcher {
         this.analyzer = new StandardAnalyzer();
         this.directory = FSDirectory.open(Paths.get(INDEX_DIRECTORY_PATH));
         createDirectoryIfNotExist();
-        this.directoryReader = DirectoryReader.open(this.directory);
-        this.indexSearcher = new IndexSearcher(this.directoryReader);
+        DirectoryReader directoryReader = DirectoryReader.open(this.directory);
+        this.indexSearcher = new IndexSearcher(directoryReader);
 
         System.out.println("Successfully initialized Searcher!");
     }
@@ -67,7 +65,7 @@ public class Searcher {
 
     private void createDirectoryIfNotExist() throws IOException {
         if (!DirectoryReader.indexExists(this.directory)) {
-            this.indexWriter = new IndexWriter(this.directory, new IndexWriterConfig(this.analyzer));
+            IndexWriter indexWriter = new IndexWriter(this.directory, new IndexWriterConfig(this.analyzer));
             loadFilesToIndex(indexWriter);
             indexWriter.close();
         }
@@ -120,12 +118,6 @@ public class Searcher {
 
     private Document getDocumentFromDB(ScoreDoc scoreDoc) throws IOException {
         return this.indexSearcher.storedFields().document(scoreDoc.doc);
-    }
-
-    private List<Document> getDocumentsFromDB(TopDocs topDocs) throws IOException {
-        List<Document> documents = new ArrayList<>();
-        for (ScoreDoc scoreDoc : topDocs.scoreDocs) documents.add(getDocumentFromDB(scoreDoc));
-        return documents;
     }
 
     public List<SearchResult> getSearchResults(String field, String plain_text_query) throws ParseException, IOException, InvalidTokenOffsetsException {

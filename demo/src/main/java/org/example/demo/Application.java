@@ -6,6 +6,7 @@ import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.util.Objects;
 
 public class Application extends javafx.application.Application {
     @Override
@@ -13,7 +14,7 @@ public class Application extends javafx.application.Application {
         FXMLLoader fxmlLoader = new FXMLLoader(Application.class.getResource("view.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
 
-        Image logo = new Image(getClass().getResource("/images/logo.png").toExternalForm());
+        Image logo = new Image(Objects.requireNonNull(getClass().getResource("/images/logo.png")).toExternalForm());
         stage.getIcons().add(logo);
 
         stage.setMaximized(true);

@@ -17,7 +17,10 @@ import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.ByteBuffersDirectory;
 import org.apache.lucene.store.Directory;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 /**
  * @author Philip Athanasopoulos
@@ -71,7 +74,7 @@ public class Demo {
         for (ScoreDoc scoreDoc : topDocs.scoreDocs) {
             Document document = isearcher.storedFields().document(scoreDoc.doc);
             System.out.println(document.get("title"));
-            System.out.println(scoreDoc.toString());
+            System.out.println(scoreDoc);
         }
 
         System.out.println(topDocs.totalHits.value);

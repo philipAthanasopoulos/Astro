@@ -1,5 +1,6 @@
 package org.example.demo.domain;
 
+import lombok.Getter;
 import org.apache.lucene.document.Document;
 
 import java.util.ArrayList;
@@ -9,7 +10,9 @@ import java.util.ArrayList;
  */
 public class SearchResult {
     private final Document document;
+    @Getter
     private final String[] bestFragments;
+    @Getter
     private final float score;
 
     public SearchResult(Document document, String[] fragment, float score) {
@@ -38,10 +41,6 @@ public class SearchResult {
         return this.bestFragments[0];
     }
 
-    public String[] getBestFragments() {
-        return this.bestFragments;
-    }
-
     public ArrayList<String> getAuthors() {
         String[] authorFullNames = this.document.getValues("authors_full_names");
         String[] institutions = this.document.getValues("authors_institutions");
@@ -51,10 +50,6 @@ public class SearchResult {
             authors.add(authorFullNames[i] + ", " + institutions[i]);
         }
         return authors;
-    }
-
-    public float getScore() {
-        return score;
     }
 
     public String getSummary() {

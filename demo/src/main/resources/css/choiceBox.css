@@ -1,0 +1,24 @@
+.choice-box {
+    -fx-font-size: 14px;
+    -fx-font-family: "Arial";
+    -fx-background-color: #ffffff;
+    -fx-border-color: #000000;
+    -fx-border-width: 1px;
+}
+
+.choice-box .label {
+    -fx-text-fill: #000000;
+}
+
+.choice-box .list-cell {
+    -fx-padding: 5px;
+}
+
+.choice-box .list-cell:hover {
+    -fx-background-color: #f0f0f0;
+}
+
+.choice-box .list-cell:filled:selected, .choice-box .list-cell:filled:selected:hover {
+    -fx-background-color: #0078d7;
+    -fx-text-fill: #ffffff;
+}
