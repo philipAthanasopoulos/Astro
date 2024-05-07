@@ -84,6 +84,25 @@ public class ApplicationController {
                 throw new RuntimeException(e);
             }
         });
+
+        addListeners();
+    }
+
+    private void addListeners() {
+        //Search by choice box listener
+        sortByChoiceBox.setOnAction(event -> sortResults());
+    }
+
+    private void sortResults() {
+        System.out.println("User tried to sort results");
+        String sortMethod = sortByChoiceBox.getValue();
+        switch (sortMethod) {
+            case "oldest first" -> searchResults.sort(Comparator.comparing(SearchResult::getYear));
+            case "newest first" -> searchResults.sort(Comparator.comparing(SearchResult::getYear).reversed());
+            case "relevance" -> searchResults.sort(Comparator.comparing(SearchResult::getScore).reversed());
+        }
+        //refresh
+        renderSearchResults();
     }
 
     @FXML
@@ -100,8 +119,6 @@ public class ApplicationController {
         System.out.println(searchField);
         List<SearchResult> results = searcher.getSearchResults(searchField, searchTextField.getText());
         String sortBy = sortByChoiceBox.getValue();
-        if (sortBy.equals("newest first")) results.sort(Comparator.comparing(SearchResult::getYear).reversed());
-        else if (sortBy.equals("oldest first")) results.sort(Comparator.comparing(SearchResult::getYear));
         searchResults.clear();
         searchResults.addAll(results);
         resultsPageIndex = 1;
@@ -132,7 +149,8 @@ public class ApplicationController {
         if (!authors.isEmpty()) {
             authorsLabel.setText("By: ");
             authorsLabel.setText(authorsLabel.getText() + authors.get(0));
-            if(authors.size() > 1) authorsLabel.setText(authorsLabel.getText() + " and " + (authors.size() - 1) + " more");
+            if (authors.size() > 1)
+                authorsLabel.setText(authorsLabel.getText() + " and " + (authors.size() - 1) + " more");
         }
 
         TextFlow textFlow = new TextFlow();

@@ -135,7 +135,7 @@ public class Searcher {
             Document document = getDocumentFromDB(scoreDoc);
             String text = document.get(field);
             String[] fragments = highlighter.getBestFragments(analyzer, field, text, 5);
-            searchResults.add(new SearchResult(document, fragments));
+            searchResults.add(new SearchResult(document, fragments, scoreDoc.score));
         }
         System.out.println("Found " + searchResults.size() + " results");
         return searchResults;

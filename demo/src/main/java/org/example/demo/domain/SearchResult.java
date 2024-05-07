@@ -9,11 +9,13 @@ import java.util.ArrayList;
  */
 public class SearchResult {
     private final Document document;
-    private String[] bestFragments;
+    private final String[] bestFragments;
+    private final float score;
 
-    public SearchResult(Document document, String[] fragment) {
+    public SearchResult(Document document, String[] fragment, float score) {
         this.document = document;
         this.bestFragments = fragment;
+        this.score = score;
     }
 
     public String getTitle() {
@@ -46,9 +48,13 @@ public class SearchResult {
 
         ArrayList<String> authors = new ArrayList<>();
         for (int i = 0; i < authorFullNames.length; i++) {
-            authors.add(authorFullNames[i] + ", "+  institutions[i]);
+            authors.add(authorFullNames[i] + ", " + institutions[i]);
         }
         return authors;
+    }
+
+    public float getScore() {
+        return score;
     }
 
     public String getSummary() {
