@@ -6,6 +6,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
+import javafx.util.Duration;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.search.highlight.InvalidTokenOffsetsException;
 import org.example.demo.domain.SearchResult;
@@ -13,7 +14,6 @@ import org.example.demo.domain.SearchSuggester;
 import org.example.demo.domain.Searcher;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -58,7 +58,7 @@ public class ApplicationController {
     private SearchSuggester searchSuggester;
 
 
-    public ApplicationController() throws URISyntaxException, IOException {
+    public ApplicationController() throws IOException {
         this.searcher = new Searcher();
     }
 
@@ -69,24 +69,31 @@ public class ApplicationController {
         historyList.setVisible(false);
         suggestionsList.setVisible(false);
 
-        ImageView searchIcon = new ImageView(getClass().getResource("/images/search.png").toExternalForm());
+        ImageView searchIcon = new ImageView(Objects.requireNonNull(getClass().getResource("/images/search.png")).toExternalForm());
         searchButton.setGraphic(searchIcon);
 
-        searchTextField.setOnKeyTyped(event -> {
-            try {
-                suggestionsList.getItems().clear();
-                suggestionsList.getItems().addAll(searcher.getSuggestions(searchTextField.getText()));
-                suggestionsList.setVisible(!suggestionsList.getItems().isEmpty());
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        });
-
         addListeners();
+        addToolips();
+    }
+
+    private void addToolips() {
+        List<Tooltip> tooltips = new ArrayList<>();
+
+        Tooltip trendyButtonTooltip = new Tooltip("Get a random search which other users found interesting");
+        tooltips.add(trendyButtonTooltip);
+        trendySuggestionButton.setTooltip(trendyButtonTooltip);
+        Tooltip historyButtonTooltip = new Tooltip("See your search history");
+        historyButton.setTooltip(historyButtonTooltip);
+        tooltips.add(historyButtonTooltip);
+
+
+        tooltips.forEach(tooltip -> {
+            tooltip.setHideDelay(new Duration(0));
+            tooltip.setShowDelay(new Duration(0));
+        });
     }
 
     private void addListeners() {
-        //Search by choice box listener
         sortByChoiceBox.setOnAction(event -> sortResults());
     }
 
@@ -110,10 +117,10 @@ public class ApplicationController {
 
     @FXML
     private void addMenuFieldItems() {
-        fieldChoiceBox.getItems().addAll("title", "year", "full_text", "abstract", "authors_full_names");
+        fieldChoiceBox.getItems().addAll("all","title", "year", "full_text", "abstract", "authors_full_names");
         sortByChoiceBox.getItems().addAll("newest first", "oldest first", "relevance");
         sortByChoiceBox.setValue("relevance");
-        fieldChoiceBox.setValue("full_text");
+        fieldChoiceBox.setValue("all");
     }
 
     @FXML
@@ -186,7 +193,6 @@ public class ApplicationController {
 
         Label titleLabel = new Label(result.getTitle());
         titleLabel.getStyleClass().add("title-label");
-
 
         Label yearLabel = new Label("Published: " + result.getYear());
         yearLabel.getStyleClass().add("year-label");

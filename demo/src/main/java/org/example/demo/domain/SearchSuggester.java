@@ -1,6 +1,6 @@
 package org.example.demo.domain;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -8,39 +8,34 @@ import java.util.Random;
  */
 public class SearchSuggester {
 
-    private ArrayList<String> searches;
-    private String allUsersSearchesFile = "./demo/src/main/resources/archive/globalUserSearches.json";
+    private final List<String> searches;
 
     public SearchSuggester() {
-        parseAllSearches();
+        searches = List.of(
+                "What is artificial intelligence?",
+                "History of artificial intelligence",
+                "Applications of artificial intelligence",
+                "Artificial intelligence in healthcare",
+                "Artificial intelligence in finance",
+                "Artificial intelligence vs machine learning",
+                "Future of artificial intelligence",
+                "Artificial intelligence companies",
+                "Artificial intelligence in education",
+                "Artificial intelligence in gaming",
+                "Artificial intelligence in business",
+                "Artificial intelligence in data analysis",
+                "Artificial intelligence in autonomous vehicles",
+                "Artificial intelligence in robotics",
+                "Ethics of artificial intelligence",
+                "Artificial intelligence in cyber security",
+                "Artificial intelligence in agriculture",
+                "Artificial intelligence in manufacturing",
+                "Artificial intelligence in marketing",
+                "Artificial intelligence in music production"
+        );
     }
 
-    private void parseAllSearches() {
-        searches = new ArrayList<>();
-        searches.add("What is artificial intelligence?");
-        searches.add("History of artificial intelligence");
-        searches.add("Applications of artificial intelligence");
-        searches.add("Artificial intelligence in healthcare");
-        searches.add("Artificial intelligence in finance");
-        searches.add("Artificial intelligence vs machine learning");
-        searches.add("Future of artificial intelligence");
-        searches.add("Artificial intelligence companies");
-        searches.add("Artificial intelligence in education");
-        searches.add("Artificial intelligence in gaming");
-        searches.add("Artificial intelligence in business");
-        searches.add("Artificial intelligence in data analysis");
-        searches.add("Artificial intelligence in autonomous vehicles");
-        searches.add("Artificial intelligence in robotics");
-        searches.add("Ethics of artificial intelligence");
-        searches.add("Artificial intelligence in cyber security");
-        searches.add("Artificial intelligence in agriculture");
-        searches.add("Artificial intelligence in manufacturing");
-        searches.add("Artificial intelligence in marketing");
-        searches.add("Artificial intelligence in music production");
-    }
-
-
-    public String suggestRandomSearch(){
+    public String suggestRandomSearch() {
         Random random = new Random();
         return searches.get(random.nextInt(searches.size()));
     }
