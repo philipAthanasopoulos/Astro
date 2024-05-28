@@ -1,4 +1,4 @@
-<h1>Astro</h1>
+<h1>Astro</h1> 
 
 <h1>About the project</h1>
 This is a search engine application build to retrieve scientific articles. Users can enter   
